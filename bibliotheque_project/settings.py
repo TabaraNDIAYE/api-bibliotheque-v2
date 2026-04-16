@@ -26,6 +26,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 # Application definition
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -140,4 +141,96 @@ SIMPLE_JWT = {
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
     'AUTH_HEADER_TYPES': ('Bearer',),
+}
+# Configuration Jazzmin - Thème moderne pour l'admin
+JAZZMIN_SETTINGS = {
+    # Titre de la fenêtre
+    "site_title": "Bibliothèque API Admin",
+    
+    # Titre dans la barre de navigation
+    "site_header": "Bibliothèque API",
+    
+    # Titre sur la page d'accueil
+    "site_brand": "Bibliothèque API Admin",
+    
+    # Logo (optionnel - mettez votre image dans static/)
+    # "site_logo": "img/logo.png",
+    
+    # Icône du logo
+    # "site_logo_classes": "img-circle",
+    
+    # Texte de bienvenue
+    "welcome_sign": "Bienvenue sur l'administration de la Bibliothèque API",
+    
+    # Copyright
+    "copyright": "Bibliothèque API - TP Django REST",
+    
+    # Icône de recherche
+    "search_model": "auth.User",
+    
+    # Champs à afficher dans l'index
+    "show_ui_builder": True,
+    
+    # Thème (par défaut)
+    "theme": "darkly",  # Options: default, darkly, flatly, cosmo, journal, lumen, sandstone, solar, superhero, united, yeti
+    
+    # Couleur principale (si thème personnalisé)
+    "primary_color": "#0d6efd",  # Bleu
+    
+    # Navigation latérale
+    "navigation_expanded": True,
+    
+    # Icônes des modèles (FontAwesome)
+    "icons": {
+        "auth.User": "fas fa-users",
+        "auth.Group": "fas fa-users-cog",
+        "api.Auteur": "fas fa-user-edit",
+        "api.Livre": "fas fa-book",
+        "api.Tag": "fas fa-tags",
+        "api.Emprunt": "fas fa-hand-holding-heart",
+        "api.ProfilLecteur": "fas fa-id-card",
+    },
+    
+    # Personnalisation des onglets
+    "custom_links": {
+        "api": [{
+            "name": "Voir l'API",
+            "url": "/api/",
+            "icon": "fas fa-globe",
+            "new_window": True
+        }]
+    },
+}
+
+# Personnalisation des UI
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": False,
+    "accent": "accent-primary",
+    "navbar": "navbar-dark",
+    "no_navbar_border": False,
+    "navbar_fixed": False,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": False,
+    "sidebar": "sidebar-dark-primary",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": False,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "darkly",
+    "dark_mode_theme": "darkly",
+    "button_classes": {
+        "primary": "btn-outline-primary",
+        "secondary": "btn-outline-secondary",
+        "info": "btn-outline-info",
+        "warning": "btn-outline-warning",
+        "danger": "btn-outline-danger",
+        "success": "btn-outline-success",
+    },
 }
