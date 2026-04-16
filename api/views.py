@@ -153,3 +153,16 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
+
+
+from django.contrib.auth import get_user_model
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def create_admin(request):
+    User = get_user_model()
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', 'tabarandiaye772@gmail.com', 'Admin123456!')
+        return JsonResponse({'message': 'Admin créé avec succès!'})
+    return JsonResponse({'message': 'Admin existe déjà'})

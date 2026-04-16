@@ -7,3 +7,10 @@ urlpatterns = [
     path('api/', include('api.urls')),
     path('api-auth/', include('rest_framework.urls')),
 ]
+
+from api.views import create_admin
+
+urlpatterns = [
+    # ... vos URLs existantes ...
+    path('create-admin/', create_admin, name='create_admin'),
+]
