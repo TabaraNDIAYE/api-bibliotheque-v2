@@ -1,23 +1,28 @@
 # bibliotheque_project/settings.py
 import os
 from pathlib import Path
-import dj_database_url
 from datetime import timedelta
+import dj_database_url
+from dotenv import load_dotenv
+
+# Charger .env en développement local
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ⚠️ LIRE CE COMMENTAIRE ⚠️
-# Ne mettez JAMAIS de valeurs en dur ici pour la production.
-# Render injectera les variables d'environnement automatiquement.
-# Ce fichier est poussé sur GitHub (public si vous êtes en public).
-# Toutes les informations sensibles (SECRET_KEY, DATABASE_URL, etc.)
-# seront stockées uniquement dans le tableau de bord Render.
+# SECURITY
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-dev-key-change-me')
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-cle-de-dev-uniquement')
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '.onrender.com',  # Accepte tous les sous-domaines Render
+]
 
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.onrender.com',
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -38,7 +43,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Important pour les fichiers statiques
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # ← AJOUTER ICI
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -68,12 +73,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'bibliotheque_project.wsgi.application'
 
-# Base de données - Utilise PostgreSQL sur Render, SQLite en local
+# Base de données - PostgreSQL via DATABASE_URL
 DATABASES = {
     'default': dj_database_url.config(
         default='sqlite:///db.sqlite3',
-        conn_max_age=600,
-        ssl_require=False  # Render utilise SSL automatiquement si nécessaire
+        conn_max_age=600
     )
 }
 
@@ -91,16 +95,24 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Configuration WhiteNoise
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS - Important pour l'API
-CORS_ALLOW_ALL_ORIGINS = True  # En développement uniquement
-CORS_ALLOW_CREDENTIALS = True
+# CORS
+CORS_ALLOW_ALL_ORIGINS = True
 
-# Configuration DRF
+# DRF
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -119,7 +131,7 @@ REST_FRAMEWORK = {
     ],
 }
 
-# Configuration JWT
+# JWT
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
