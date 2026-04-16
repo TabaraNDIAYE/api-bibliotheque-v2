@@ -1,5 +1,5 @@
-# bibliotheque_project/settings.py
 import os
+import sys
 from pathlib import Path
 from datetime import timedelta
 import dj_database_url
@@ -17,7 +17,7 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    '.onrender.com',  # Accepte tous les sous-domaines Render
+    '.onrender.com',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -26,7 +26,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 # Application definition
 INSTALLED_APPS = [
-    'jazzmin',
+    'jazzmin',  # ← PREMIER !!!
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,7 +44,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # ← AJOUTER ICI
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -98,15 +98,12 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Configuration WhiteNoise
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
+# Configuration WhiteNoise - Version CORRIGÉE (sans Manifest)
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
+# Ignorer les erreurs de fichiers manquants pendant collectstatic
+if 'collectstatic' in sys.argv:
+    WHITENOISE_KEEP_ONLY_HASHED_FILES = False
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -142,45 +139,35 @@ SIMPLE_JWT = {
     'SIGNING_KEY': SECRET_KEY,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
-# Configuration Jazzmin - Thème moderne pour l'admin
+
+# ==================== CONFIGURATION JAZZMIN ====================
+
 JAZZMIN_SETTINGS = {
-    # Titre de la fenêtre
-    "site_title": "Bibliothèque API Admin",
-    
-    # Titre dans la barre de navigation
+    "site_title": "Bibliothèque API",
     "site_header": "Bibliothèque API",
-    
-    # Titre sur la page d'accueil
-    "site_brand": "Bibliothèque API Admin",
-    
-    # Logo (optionnel - mettez votre image dans static/)
-    # "site_logo": "img/logo.png",
-    
-    # Icône du logo
-    # "site_logo_classes": "img-circle",
-    
-    # Texte de bienvenue
-    "welcome_sign": "Bienvenue sur l'administration de la Bibliothèque API",
-    
-    # Copyright
+    "site_brand": "Bibliothèque",
+    "site_logo": None,
+    "welcome_sign": "Bienvenue sur l'administration",
     "copyright": "Bibliothèque API - TP Django REST",
-    
-    # Icône de recherche
     "search_model": "auth.User",
-    
-    # Champs à afficher dans l'index
-    "show_ui_builder": True,
-    
-    # Thème (par défaut)
-    "theme": "darkly",  # Options: default, darkly, flatly, cosmo, journal, lumen, sandstone, solar, superhero, united, yeti
-    
-    # Couleur principale (si thème personnalisé)
-    "primary_color": "#0d6efd",  # Bleu
-    
-    # Navigation latérale
+    "user_avatar": None,
+    "topmenu_links": [
+        {"name": "Accueil", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Voir l'API", "url": "/api/", "new_window": True},
+    ],
+    "show_sidebar": True,
     "navigation_expanded": True,
-    
-    # Icônes des modèles (FontAwesome)
+    "hide_apps": [],
+    "hide_models": [],
+    "order_with_respect_to": ["auth", "api"],
+    "custom_links": {
+        "api": [{
+            "name": "Documentation API",
+            "url": "/api/",
+            "icon": "fas fa-globe",
+            "new_window": True
+        }]
+    },
     "icons": {
         "auth.User": "fas fa-users",
         "auth.Group": "fas fa-users-cog",
@@ -190,29 +177,45 @@ JAZZMIN_SETTINGS = {
         "api.Emprunt": "fas fa-hand-holding-heart",
         "api.ProfilLecteur": "fas fa-id-card",
     },
-    
-    # Personnalisation des onglets
-    "custom_links": {
-        "api": [{
-            "name": "Voir l'API",
-            "url": "/api/",
-            "icon": "fas fa-globe",
-            "new_window": True
-        }]
-    },
+    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_children": "fas fa-circle",
+    "related_modal_active": False,
+    "custom_css": None,
+    "custom_js": None,
+    "show_ui_builder": True,
+    "changeform_format": "horizontal_tabs",
+    "changeform_format_overrides": {"auth.user": "collapsible", "auth.group": "vertical_tabs"},
 }
 
-# Configuration Jazzmin
-JAZZMIN_SETTINGS = {
-    "site_title": "Bibliothèque API",
-    "site_header": "Bibliothèque API",
-    "site_brand": "Bibliothèque",
-    "welcome_sign": "Bienvenue sur l'administration",
-    "copyright": "Bibliothèque API - TP Django REST",
-    "theme": "darkly",  # Thème sombre moderne
-}
-
+# Thème Jazzmin
 JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": False,
+    "accent": "accent-primary",
+    "navbar": "navbar-dark",
+    "no_navbar_border": False,
+    "navbar_fixed": False,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": False,
+    "sidebar": "sidebar-dark-primary",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": False,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
     "theme": "darkly",
     "dark_mode_theme": "darkly",
+    "button_classes": {
+        "primary": "btn-outline-primary",
+        "secondary": "btn-outline-secondary",
+        "info": "btn-outline-info",
+        "warning": "btn-outline-warning",
+        "danger": "btn-outline-danger",
+        "success": "btn-outline-success",
+    },
 }
